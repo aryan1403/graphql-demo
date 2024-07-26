@@ -4,7 +4,7 @@ const { expressMiddleware } = require("@apollo/server/express4");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const { default: axios } = require("axios");
-
+const productdb = require("./db/db");
 const { USERS } = require("./user");
 const { TODOS } = require("./todo");
 
@@ -12,37 +12,23 @@ async function startServer() {
   const app = express();
   const server = new ApolloServer({
     typeDefs: `
-        type User {
+        type Product {
             id: ID!
-            name: String!
-            username: String!
-            email: String!
-            phone: String!
-            website: String!
-        }
-
-        type Todo {
-            id: ID!
-            title: String!
-            completed: Boolean
-            user: User
+            type: String!
+            item: String!
+            ratings: [Int]!
         }
 
         type Query {
-            getTodos: [Todo]
-            getAllUsers: [User]
-            getUser(id: ID!): User
+            getAllProducts: [Product]
+            getProduct(id: ID!): Product
         }
 
     `,
     resolvers: {
-      Todo: {
-        user: (todo) => USERS.find((e) => e.id === todo.id),
-      },
       Query: {
-        getTodos: () => TODOS,
-        getAllUsers: () => USERS,
-        getUser: async (parent, { id }) => USERS.find((e) => e.id === id),
+        getAllProducts: async () => await productdb.find(),
+        getProduct: async (parent, { id }) => productdb.find({_id: id}),
       },
     },
   });

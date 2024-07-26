@@ -12,11 +12,14 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     }, 
-    rating: {
+    ratings: {
         type: Array,
         required: false
     }
 })
 const productsModel = mongoose.model('products', productSchema, 'inventory');
 
-productsModel.find().then((data) => console.log(data)).catch((err) => console.log(err));
+// get, post, delete, put
+
+// productsModel.find().then((data) => console.log(data)).catch((err) => console.log(err));
+module.exports = productsModel;
