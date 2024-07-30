@@ -1,34 +1,35 @@
+require('dotenv').config()
 const express = require("express");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const { default: axios } = require("axios");
-const productdb = require("./db/db");
-const { USERS } = require("./user");
-const { TODOS } = require("./todo");
+const {zipModel} = require("./db/db");
+const PORT = process.env.PORT || 8000;
 
 async function startServer() {
   const app = express();
   const server = new ApolloServer({
     typeDefs: `
-        type Product {
-            id: ID!
-            type: String!
-            item: String!
-            ratings: [Int]!
+        type Zip {
+            _id: String!
+            city: String!
+            state: String!
+            loc: [Float]!
+            pop: Int!
         }
 
         type Query {
-            getAllProducts: [Product]
-            getProduct(id: ID!): Product
+            getAllData: [Zip]
+            getZipByCity(city: String!): Zip
         }
 
     `,
     resolvers: {
       Query: {
-        getAllProducts: async () => await productdb.find(),
-        getProduct: async (parent, { id }) => productdb.find({_id: id}),
+        getAllData: async () => await zipModel.find(),
+        getZipByCity: async (parent, { city }) => zipModel.findOne({city: city})
       },
     },
   });
@@ -40,7 +41,7 @@ async function startServer() {
 
   app.use("/graphql", expressMiddleware(server));
 
-  app.listen(8000, () => console.log("Serevr Started at PORT 8000"));
+  app.listen(PORT, () => console.log("Serevr Started at PORT", PORT));
 }
 
 startServer();
